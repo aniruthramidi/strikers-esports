@@ -38,6 +38,27 @@ export default function Admin() {
   const [aboutDesc, setAboutDesc] = useState(homepageSettings?.aboutDesc || 'Building a legacy in competitive gaming, Strikers Esports is driven by a commitment to excellence, player development, and community.');
   const [homepageMessage, setHomepageMessage] = useState('');
 
+  // Sync hydrated settings and users into local form states
+  useEffect(() => {
+    if (homepageSettings) {
+      if (homepageSettings.heroTitle) setHeroTitle(homepageSettings.heroTitle);
+      if (homepageSettings.heroTitleHighlight) setHeroTitleHighlight(homepageSettings.heroTitleHighlight);
+      if (homepageSettings.heroDesc) setHeroDesc(homepageSettings.heroDesc);
+      if (homepageSettings.stats) setStats(homepageSettings.stats);
+      if (homepageSettings.aboutTitle) setAboutTitle(homepageSettings.aboutTitle);
+      if (homepageSettings.aboutDesc) setAboutDesc(homepageSettings.aboutDesc);
+      if (homepageSettings.contactEmail) setContactEmail(homepageSettings.contactEmail);
+      if (homepageSettings.businessEmail) setBusinessEmail(homepageSettings.businessEmail);
+      if (homepageSettings.supportInfo) setSupportInfo(homepageSettings.supportInfo);
+    }
+  }, [homepageSettings]);
+
+  useEffect(() => {
+    if (adminUsers && adminUsers.length > 0) {
+      setUsersList(adminUsers);
+    }
+  }, [adminUsers]);
+
   // Roster Editor State
   const [rosterTab, setRosterTab] = useState('bgmi');
   const [rosterSuccessMsg, setRosterSuccessMsg] = useState('');
