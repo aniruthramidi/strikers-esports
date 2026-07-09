@@ -46,44 +46,7 @@ const DEFAULT_ROSTERS = {
   ]
 };
 
-const DEFAULT_STAFF = [
-  {
-    name: 'Rohit Raghavendra',
-    role: 'Founder & CEO',
-    bio: "Rohit has built Strikers Esports into a respected organization known for its skilled rosters, disciplined training, and strong community presence. Committed to excellence, innovation, and player development, Rohit continues to elevate Strikers Esports to new heights in the world of competitive gaming.",
-    photo: ''
-  },
-  {
-    name: 'Meghanath Varidireddy',
-    role: 'COO',
-    bio: 'Meghanath oversees organizational strategy, player management, and day-to-day execution to ensure the team\'s sustained growth and success. Under his guidance, Strikers Esports continues to strengthen its position as a dynamic and professional force in the esports ecosystem.',
-    photo: ''
-  },
-  {
-    name: 'Radhika Javvaji',
-    role: 'CMO',
-    bio: 'Radhika leads the marketing strategy, brand development, and community engagement initiatives to enhance Strikers\' visibility and reach. Her innovative approach to marketing helps Strikers Esports stay ahead in the competitive esports landscape.',
-    photo: ''
-  },
-  {
-    name: 'Alla Chaithenya',
-    role: 'CFO',
-    bio: 'Alla manages the financial strategy, budgeting, and resource allocation to ensure the organization\'s growth and sustainability. His expertise in financial planning and analysis helps Strikers Esports make informed decisions that benefit the entire team.',
-    photo: ''
-  },
-  {
-    name: 'Anil Yamannagari',
-    role: 'Head of Esports',
-    bio: 'Anil leads the competitive strategy, player development, and team management across all esports divisions. His leadership and vision help Strikers Esports maintain its position as a formidable force in the esports landscape.',
-    photo: ''
-  },
-  {
-    name: 'Deepu',
-    role: 'Technical Head',
-    bio: 'Deepu is responsible for overseeing all technological and infrastructure needs that power the organization’s competitive edge. He ensures that players have access to the best setups, smooth operations, and cutting-edge tools required to compete at the highest level.',
-    photo: ''
-  }
-];
+const DEFAULT_STAFF = [];
 
 export function AdminProvider({ children }) {
   const [categories, setCategories] = useState(() => {
@@ -121,7 +84,15 @@ export function AdminProvider({ children }) {
 
   const [staffState, setStaffState] = useState(() => {
     const saved = localStorage.getItem('strikers_staff');
-    return saved ? JSON.parse(saved) : DEFAULT_STAFF;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const hasOldStaff = parsed.some(s => s.name === 'Rohit Raghavendra' || s.name === 'Radhika Javvaji');
+      if (hasOldStaff) {
+        return [];
+      }
+      return parsed;
+    }
+    return DEFAULT_STAFF;
   });
 
   useEffect(() => {
