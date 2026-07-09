@@ -56,34 +56,22 @@ const DEFAULT_ADMIN_USERS = [
   { username: 'hydra', password: 'hydra123' }
 ];
 
-const safeParse = (key, fallback) => {
-  try {
-    const saved = localStorage.getItem(key);
-    if (!saved) return fallback;
-    const parsed = JSON.parse(saved);
-    if (parsed === null || parsed === undefined) return fallback;
-    return parsed;
-  } catch (e) {
-    console.error(`Error parsing localStorage key "${key}":`, e);
-    return fallback;
-  }
-};
-
 export function AdminProvider({ children }) {
   const [categories, setCategories] = useState(() => {
-    const parsed = safeParse('strikers_categories', DEFAULT_CATEGORIES);
-    return { ...DEFAULT_CATEGORIES, ...parsed };
+    const saved = localStorage.getItem('strikers_categories');
+    return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
   });
 
   const [orders, setOrders] = useState(() => {
-    const parsed = safeParse('strikers_orders', []);
-    return Array.isArray(parsed) ? parsed : [];
+    const saved = localStorage.getItem('strikers_orders');
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [navLinksState, setNavLinksState] = useState(() => {
-    const parsed = safeParse('strikers_nav_links', DEFAULT_NAV_LINKS);
-    if (Array.isArray(parsed)) {
-      const hasAbout = parsed.some(link => link && link.path === '/about');
+    const saved = localStorage.getItem('strikers_nav_links');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const hasAbout = parsed.some(link => link.path === '/about');
       if (!hasAbout) {
         parsed.unshift({ name: 'About', path: '/about', visible: true, desc: 'Showcase Strikers Esports mission, founder, and management staff.' });
       }
@@ -93,19 +81,23 @@ export function AdminProvider({ children }) {
   });
 
   const [homepageSettings, setHomepageSettings] = useState(() => {
-    const parsed = safeParse('strikers_homepage_settings', DEFAULT_HOMEPAGE_SETTINGS);
-    return { ...DEFAULT_HOMEPAGE_SETTINGS, ...parsed };
+    const saved = localStorage.getItem('strikers_homepage_settings');
+    if (saved) {
+      return { ...DEFAULT_HOMEPAGE_SETTINGS, ...JSON.parse(saved) };
+    }
+    return DEFAULT_HOMEPAGE_SETTINGS;
   });
 
   const [rostersState, setRostersState] = useState(() => {
-    const parsed = safeParse('strikers_rosters', DEFAULT_ROSTERS);
-    return { ...DEFAULT_ROSTERS, ...parsed };
+    const saved = localStorage.getItem('strikers_rosters');
+    return saved ? JSON.parse(saved) : DEFAULT_ROSTERS;
   });
 
   const [staffState, setStaffState] = useState(() => {
-    const parsed = safeParse('strikers_staff', DEFAULT_STAFF);
-    if (Array.isArray(parsed)) {
-      const hasOldStaff = parsed.some(s => s && (s.name === 'Rohit Raghavendra' || s.name === 'Radhika Javvaji'));
+    const saved = localStorage.getItem('strikers_staff');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const hasOldStaff = parsed.some(s => s.name === 'Rohit Raghavendra' || s.name === 'Radhika Javvaji');
       if (hasOldStaff) {
         return [];
       }
@@ -115,9 +107,11 @@ export function AdminProvider({ children }) {
   });
 
   const [adminUsers, setAdminUsers] = useState(() => {
-    const parsed = safeParse('strikers_admin_users', DEFAULT_ADMIN_USERS);
-    if (Array.isArray(parsed)) {
-      const hasOldSingleAdmin = parsed.some(u => u && u.username === 'admin');
+    const saved = localStorage.getItem('strikers_admin_users');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Reset if it holds the old single admin setup or is invalid
+      const hasOldSingleAdmin = parsed.some(u => u.username === 'admin');
       if (hasOldSingleAdmin) {
         return DEFAULT_ADMIN_USERS;
       }
