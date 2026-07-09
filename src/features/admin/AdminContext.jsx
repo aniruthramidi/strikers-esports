@@ -291,6 +291,7 @@ export function AdminProvider({ children }) {
         staffState,
         adminUsers,
         updateAdminUsers,
+        isHydrated,
         toggleCategoryVisibility,
         toggleNavLinkVisibility,
         addCustomCategory,
