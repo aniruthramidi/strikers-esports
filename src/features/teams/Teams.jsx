@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { AdminContext } from '../context/AdminContext';
-import { Shield, Mail, Award, Flame, Zap, Award as TrophyIcon } from 'lucide-react';
+import { AdminContext } from '../admin/AdminContext';
+import { Shield, Flame } from 'lucide-react';
 
 export default function Teams() {
   const { rostersState, staffState } = useContext(AdminContext);

@@ -1,21 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AdminProvider } from './context/AdminContext';
+import { AdminProvider } from './features/admin/AdminContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
-import Tournaments from './pages/Tournaments';
-import Teams from './pages/Teams';
-import Services from './pages/Services';
-import Merch from './pages/Merch';
-import Calculator from './pages/Calculator';
-import Admin from './pages/Admin';
-import Intro from './components/Intro';
+import Home from './features/home/Home';
+import Teams from './features/teams/Teams';
+import Merch from './features/merch/Merch';
+import Admin from './features/admin/Admin';
+import About from './features/about/About';
 
 function App() {
   return (
     <AdminProvider>
-      <Intro />
       <Router>
         <div className="min-h-screen flex flex-col bg-black text-white selection:bg-white selection:text-black">
           {/* Navbar */}
@@ -25,11 +21,9 @@ function App() {
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/tournaments" element={<Tournaments />} />
+              <Route path="/about" element={<About />} />
               <Route path="/team" element={<Teams />} />
-              <Route path="/services" element={<Services />} />
               <Route path="/merch" element={<Merch />} />
-              <Route path="/bgis-calculator" element={<Calculator />} />
               <Route path="/admin" element={<Admin />} />
             </Routes>
           </main>

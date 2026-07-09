@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { AdminContext } from '../context/AdminContext';
-import { Eye, EyeOff, Plus, Trash2, FolderPlus, ToggleLeft, ToggleRight, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus } from 'lucide-react';
+import { AdminContext } from './AdminContext';
+import { Eye, EyeOff, Plus, Trash2, FolderPlus, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus, Info } from 'lucide-react';
 
 export default function Admin() {
-  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, recordNewOrder, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
+  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
   
   // Login State
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -32,6 +32,8 @@ export default function Admin() {
     { value: '100K+', label: 'Community Members' },
     { value: '5+', label: 'Professional Rosters' },
   ]);
+  const [aboutTitle, setAboutTitle] = useState(homepageSettings?.aboutTitle || 'About Strikers');
+  const [aboutDesc, setAboutDesc] = useState(homepageSettings?.aboutDesc || 'Building a legacy in competitive gaming, Strikers Esports is driven by a commitment to excellence, player development, and community.');
   const [homepageMessage, setHomepageMessage] = useState('');
 
   // Roster Editor State
@@ -81,7 +83,9 @@ export default function Admin() {
       heroTitle,
       heroTitleHighlight,
       heroDesc,
-      stats
+      stats,
+      aboutTitle,
+      aboutDesc
     });
     setHomepageMessage('Homepage settings saved successfully!');
     setTimeout(() => setHomepageMessage(''), 4000);
@@ -228,6 +232,16 @@ export default function Admin() {
           }`}
         >
           <LayoutGrid className="w-4 h-4" /> Homepage Editor
+        </button>
+        <button
+          onClick={() => setActiveTab('about')}
+          className={`flex items-center gap-2 px-4 py-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-all ${
+            activeTab === 'about'
+              ? 'border-white text-white'
+              : 'border-transparent text-strikers-muted hover:text-white'
+          }`}
+        >
+          <Info className="w-4 h-4" /> About Page Editor
         </button>
         <button
           onClick={() => setActiveTab('roster')}
@@ -487,6 +501,57 @@ export default function Admin() {
         </div>
       )}
 
+      {/* Tab Content: About Page Editor */}
+      {activeTab === 'about' && (
+        <div className="max-w-3xl mx-auto border border-strikers-border bg-strikers-gray p-8 rounded-3xl space-y-6">
+          <div className="space-y-2 border-b border-strikers-border pb-4">
+            <h3 className="text-lg font-black uppercase text-white">About Page Editor</h3>
+            <p className="text-xs text-strikers-muted">
+              Update Strikers Esports mission statement, titles, and introductory descriptions.
+            </p>
+          </div>
+
+          {homepageMessage && (
+            <div className="p-4 rounded-xl text-xs font-bold uppercase tracking-wider border bg-emerald-950/20 border-emerald-500/50 text-emerald-400">
+              {homepageMessage}
+            </div>
+          )}
+
+          <form onSubmit={handleHomepageSave} className="space-y-6 text-xs">
+            <div className="space-y-1">
+              <label className="text-[9px] uppercase font-bold text-strikers-muted">About Title</label>
+              <input
+                type="text"
+                required
+                value={aboutTitle}
+                onChange={(e) => setAboutTitle(e.target.value)}
+                className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                placeholder="e.g. About Strikers"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[9px] uppercase font-bold text-strikers-muted">About Description</label>
+              <textarea
+                required
+                value={aboutDesc}
+                onChange={(e) => setAboutDesc(e.target.value)}
+                rows="4"
+                className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white resize-none"
+                placeholder="Enter About description..."
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3.5 bg-white text-black font-black uppercase tracking-wider text-xs rounded-full hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            >
+              <Save className="w-4 h-4" /> Save About Settings
+            </button>
+          </form>
+        </div>
+      )}
+
       {/* Tab Content: Roster Players & Photos Editor */}
       {activeTab === 'roster' && (
         <div className="max-w-4xl mx-auto border border-strikers-border bg-strikers-gray p-8 rounded-3xl space-y-8 animate-fadeIn">
@@ -730,8 +795,6 @@ export default function Admin() {
                 className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
               >
                 <option value="merch">Merchandise Shop (Badges)</option>
-                <option value="services">Studios (Creative Categories)</option>
-                <option value="tournaments">Tournament Cups (Status filters)</option>
               </select>
             </div>
 

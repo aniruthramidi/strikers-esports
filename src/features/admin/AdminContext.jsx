@@ -8,26 +8,13 @@ const DEFAULT_CATEGORIES = {
     { name: 'Popular', visible: true, custom: false, desc: 'Hot-selling fan apparel and hoodies.' },
     { name: 'Accessory', visible: true, custom: false, desc: 'Snapbacks, stickers, and small items.' },
     { name: 'Hardware', visible: true, custom: false, desc: 'Pro-grade mousepads and peripherals.' },
-  ],
-  services: [
-    { name: 'VFX & GFX', visible: true, custom: false, desc: 'High-end gaming montage edits and stream overlays.' },
-    { name: 'Production', visible: true, custom: false, desc: 'Full broadcast setup and tournament production.' },
-    { name: 'Social Media', visible: true, custom: false, desc: 'Esports graphic packages and content calendars.' },
-    { name: 'Esports Operations', visible: true, custom: false, desc: 'Consulting, league management, and rule drafting.' },
-  ],
-  tournaments: [
-    { name: 'Active', visible: true, custom: false, desc: 'Tournaments currently live with matches streaming.' },
-    { name: 'Upcoming', visible: true, custom: false, desc: 'Registration open or upcoming matches announced.' },
-    { name: 'Completed', visible: true, custom: false, desc: 'Concluded cups with final standings and champion brackets.' },
   ]
 };
 
 const DEFAULT_NAV_LINKS = [
-  { name: 'Tournaments', path: '/tournaments', visible: true, desc: 'Access to portal matches, schedule details, points brackets, and live stream streams.' },
+  { name: 'About', path: '/about', visible: true, desc: 'Showcase Strikers Esports mission, founder, and management staff.' },
   { name: 'Teams', path: '/team', visible: true, desc: 'Showcase grid profiles for player rosters and corporate management.' },
-  { name: 'Studios', path: '/services', visible: true, desc: 'Esports creative design studio overview, packages list, and portfolio.' },
-  { name: 'Shop', path: '/merch', visible: true, desc: 'Interactive fan gear clothing store, checkout, and cart workflows.' },
-  { name: 'IGQ Calculator', path: '/bgis-calculator', visible: true, desc: 'BGIS campaign points calculator tool for fans.' }
+  { name: 'Shop', path: '/merch', visible: true, desc: 'Interactive fan gear clothing store, checkout, and cart workflows.' }
 ];
 
 const DEFAULT_HOMEPAGE_SETTINGS = {
@@ -39,7 +26,9 @@ const DEFAULT_HOMEPAGE_SETTINGS = {
     { value: '₹25L+', label: 'Total Prize Pools' },
     { value: '100K+', label: 'Community Members' },
     { value: '5+', label: 'Professional Rosters' },
-  ]
+  ],
+  aboutTitle: 'About Strikers',
+  aboutDesc: 'Started in 2019, Strikers Esports began as a passionate community server, serving as a hub for casual gamers to connect and play. Over time, this vibrant foundation naturally shifted focus toward competitive gaming, evolving into a structured esports organization. Driven by dedicated management and strategic execution, the organization scaled up its technical infrastructure, team logistics, and brand presence. Today, Strikers Esports stands as a professional entity that bridges community engagement with competitive excellence, particularly in mobile esports.'
 };
 
 const DEFAULT_ROSTERS = {
@@ -109,7 +98,15 @@ export function AdminProvider({ children }) {
 
   const [navLinksState, setNavLinksState] = useState(() => {
     const saved = localStorage.getItem('strikers_nav_links');
-    return saved ? JSON.parse(saved) : DEFAULT_NAV_LINKS;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const hasAbout = parsed.some(link => link.path === '/about');
+      if (!hasAbout) {
+        parsed.unshift({ name: 'About', path: '/about', visible: true, desc: 'Showcase Strikers Esports mission, founder, and management staff.' });
+      }
+      return parsed;
+    }
+    return DEFAULT_NAV_LINKS;
   });
 
   const [homepageSettings, setHomepageSettings] = useState(() => {

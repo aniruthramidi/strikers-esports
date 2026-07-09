@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { AdminContext } from '../context/AdminContext';
-import { ShoppingBag, X, Check, ArrowRight, ShieldCheck, Heart } from 'lucide-react';
+import { AdminContext } from '../admin/AdminContext';
+import { ShoppingBag, X, Check, ArrowRight } from 'lucide-react';
 
 const products = [
   {

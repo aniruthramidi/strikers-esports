@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AdminContext } from '../context/AdminContext';
-import { Menu, X, Trophy, Users, ShoppingBag, ShieldAlert, Cpu, HeartHandshake } from 'lucide-react';
+import { AdminContext } from '../features/admin/AdminContext';
+import { Menu, X, Users, ShoppingBag, Shield } from 'lucide-react';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,20 +12,19 @@ export default function Navbar() {
     { name: 'Home', path: '/' },
   ];
 
-  const visibleNavLinks = (navLinksState || []).filter(link => link.visible).map(link => {
-    let icon = Cpu;
-    if (link.name === 'Tournaments') icon = Trophy;
-    if (link.name === 'Teams') icon = Users;
-    if (link.name === 'Studios') icon = HeartHandshake;
-    if (link.name === 'Shop') icon = ShoppingBag;
-    if (link.name === 'IGQ Calculator') icon = Cpu;
-    return { name: link.name, path: link.path, icon };
-  });
+  const visibleNavLinks = (navLinksState || [])
+    .filter(link => link.visible && link.name !== 'Tournaments' && link.name !== 'Studios' && link.name !== 'IGQ Calculator')
+    .map(link => {
+      let icon = ShoppingBag;
+      if (link.name === 'About') icon = Shield;
+      if (link.name === 'Teams') icon = Users;
+      if (link.name === 'Shop') icon = ShoppingBag;
+      return { name: link.name, path: link.path, icon };
+    });
 
   const navLinks = [
     ...baseLinks,
     ...visibleNavLinks,
-    { name: 'Admin', path: '/admin', icon: ShieldAlert }
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -36,7 +35,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-3 group">
-          <img src="/logo.png" alt="Strikers Logo" className="w-9 h-9 object-contain rounded-md" />
+          <img src="/logo.png?v=3" alt="Strikers Logo" className="w-9 h-9 object-contain rounded-md" />
           <span className="font-bold tracking-widest text-lg uppercase text-white group-hover:text-gray-300 transition-colors">
             Strikers <span className="font-light text-gray-400">Esports</span>
           </span>
@@ -46,7 +45,6 @@ export default function Navbar() {
         {/* Desktop Links */}
         <div className="hidden md:flex items-center space-x-8">
           {navLinks.map((link) => {
-            const Icon = link.icon;
             return (
               <Link
                 key={link.path}

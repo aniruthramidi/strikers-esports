@@ -24,7 +24,7 @@ export default function Footer() {
         {/* About column */}
         <div className="space-y-4">
           <div className="flex items-center space-x-3">
-            <img src="/logo.png" alt="Strikers Logo" className="w-8 h-8 object-contain rounded-md" />
+            <img src="/logo.png?v=3" alt="Strikers Logo" className="w-8 h-8 object-contain rounded-md" />
             <span className="font-bold tracking-widest text-base uppercase text-white">
               Strikers <span className="font-light text-gray-400">Esports</span>
             </span>
@@ -40,19 +40,13 @@ export default function Footer() {
           <h4 className="text-xs uppercase tracking-widest font-bold text-white mb-4">Quick Links</h4>
           <ul className="space-y-2 text-xs text-strikers-muted">
             <li>
-              <Link to="/tournaments" className="hover:text-white transition-colors">Tournaments</Link>
+              <Link to="/about" className="hover:text-white transition-colors">About Us</Link>
             </li>
             <li>
               <Link to="/team" className="hover:text-white transition-colors">Our Teams</Link>
             </li>
             <li>
-              <Link to="/services" className="hover:text-white transition-colors">Strikers Studios</Link>
-            </li>
-            <li>
               <Link to="/merch" className="hover:text-white transition-colors">Merchandise</Link>
-            </li>
-            <li>
-              <Link to="/bgis-calculator" className="hover:text-white transition-colors">IGQ Calculator</Link>
             </li>
           </ul>
         </div>

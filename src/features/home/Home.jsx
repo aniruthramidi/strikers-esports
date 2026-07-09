@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { AdminContext } from '../context/AdminContext';
-import { Trophy, Shield, Cpu, ShoppingBag, Eye, ArrowRight, Star, Users, Flame } from 'lucide-react';
+import { AdminContext } from '../admin/AdminContext';
+import { ShoppingBag, ArrowRight, Star, Users, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -59,16 +59,16 @@ export default function Home() {
             className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4"
           >
             <Link
-              to="/tournaments"
+              to="/team"
               className="w-full sm:w-auto px-8 py-4 bg-white text-black font-bold uppercase tracking-wider text-xs rounded-full hover:bg-gray-200 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_35px_rgba(255,255,255,0.3)]"
             >
-              Explore Cups
+              Our Teams
             </Link>
             <Link
-              to="/bgis-calculator"
+              to="/merch"
               className="w-full sm:w-auto px-8 py-4 bg-strikers-gray text-white border border-strikers-border font-bold uppercase tracking-wider text-xs rounded-full hover:bg-black hover:border-white transition-all duration-300"
             >
-              BGIS IGQ Calculator
+              Shop Gear
             </Link>
           </motion.div>
         </div>
@@ -182,6 +182,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+
 
       {/* Merch Banner */}
       <section className="py-24 bg-black px-6 border-t border-strikers-border">
