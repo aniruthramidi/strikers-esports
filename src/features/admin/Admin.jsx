@@ -3,7 +3,7 @@ import { AdminContext } from './AdminContext';
 import { Eye, EyeOff, Plus, Trash2, FolderPlus, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus, Info, Settings } from 'lucide-react';
 
 export default function Admin() {
-  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsername, adminPassword, updateAdminCredentials, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
+  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers, updateAdminUsers, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
   
   // Login State
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -21,6 +21,8 @@ export default function Admin() {
   const [catName, setCatName] = useState('');
   const [catDesc, setCatDesc] = useState('');
   const [builderMessage, setBuilderMessage] = useState({ text: '', type: '' });
+
+
 
   // Homepage Form State
   const [heroTitle, setHeroTitle] = useState(homepageSettings?.heroTitle || 'STRIKERS');
@@ -47,8 +49,7 @@ export default function Admin() {
   const [contactEmail, setContactEmail] = useState(homepageSettings?.contactEmail || 'contact@strikersesports.in');
   const [businessEmail, setBusinessEmail] = useState(homepageSettings?.businessEmail || 'info@strikersesports.in');
   const [supportInfo, setSupportInfo] = useState(homepageSettings?.supportInfo || 'Support available 24/7.');
-  const [newUsername, setNewUsername] = useState(adminUsername);
-  const [newPassword, setNewPassword] = useState(adminPassword);
+  const [usersList, setUsersList] = useState(adminUsers || []);
   const [settingsSuccessMsg, setSettingsSuccessMsg] = useState('');
 
   const handleSettingsSave = (e) => {
@@ -59,14 +60,17 @@ export default function Admin() {
       businessEmail,
       supportInfo
     });
-    updateAdminCredentials(newUsername, newPassword);
+    updateAdminUsers(usersList);
     setSettingsSuccessMsg('Credentials and Contact details updated successfully!');
     setTimeout(() => setSettingsSuccessMsg(''), 4000);
   };
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    if (username === adminUsername && password === adminPassword) {
+    const matchedUser = (adminUsers || []).find(
+      (u) => u.username.trim() === username.trim() && u.password === password
+    );
+    if (matchedUser) {
       setIsLoggedIn(true);
       sessionStorage.setItem('strikers_admin_logged', 'true');
       setLoginError('');
@@ -195,8 +199,9 @@ export default function Admin() {
           {/* Development Hint Box */}
           <div className="border border-neutral-800 bg-black/40 p-4 rounded-2xl text-[10px] text-strikers-muted space-y-1 leading-relaxed">
             <p className="font-bold text-white uppercase tracking-wider text-[8px]">Authentication Credentials Note:</p>
-            <p>Username: <strong className="text-white">{adminUsername}</strong></p>
-            <p>Password: <strong className="text-white">{adminPassword}</strong></p>
+            {(adminUsers || []).map((u, i) => (
+              <p key={i}>User {i + 1}: <strong className="text-white">{u.username}</strong> / <strong className="text-white">{u.password}</strong></p>
+            ))}
           </div>
         </div>
       </div>
@@ -978,33 +983,72 @@ export default function Admin() {
 
             {/* Admin Credentials */}
             <div className="space-y-4 pt-4 border-t border-neutral-800">
-              <h4 className="font-bold text-[10px] uppercase tracking-wider text-white border-b border-neutral-800 pb-1">
-                Security & Portal Login Credentials
-              </h4>
+              <div className="flex justify-between items-center border-b border-neutral-800 pb-1">
+                <h4 className="font-bold text-[10px] uppercase tracking-wider text-white">
+                  Security & Portal Login Credentials
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (usersList.length < 5) {
+                      setUsersList([...usersList, { username: '', password: '' }]);
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-[9px] uppercase font-bold text-white transition-colors"
+                >
+                  + Add Admin User
+                </button>
+              </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[9px] uppercase font-bold text-strikers-muted">Admin Username</label>
-                  <input
-                    type="text"
-                    required
-                    value={newUsername}
-                    onChange={(e) => setNewUsername(e.target.value)}
-                    className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
-                    placeholder="admin"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] uppercase font-bold text-strikers-muted">Admin Password</label>
-                  <input
-                    type="text"
-                    required
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
-                    placeholder="strikersadmin123"
-                  />
-                </div>
+              <div className="space-y-4">
+                {usersList.map((user, idx) => (
+                  <div key={idx} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end bg-black/20 p-4 rounded-2xl border border-neutral-900">
+                    <div className="sm:col-span-5 space-y-1">
+                      <label className="text-[9px] uppercase font-bold text-strikers-muted">User {idx + 1} Username</label>
+                      <input
+                        type="text"
+                        required
+                        value={user.username}
+                        onChange={(e) => {
+                          const updated = [...usersList];
+                          updated[idx].username = e.target.value;
+                          setUsersList(updated);
+                        }}
+                        className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                        placeholder="Username"
+                      />
+                    </div>
+                    <div className="sm:col-span-5 space-y-1">
+                      <label className="text-[9px] uppercase font-bold text-strikers-muted">User {idx + 1} Password</label>
+                      <input
+                        type="text"
+                        required
+                        value={user.password}
+                        onChange={(e) => {
+                          const updated = [...usersList];
+                          updated[idx].password = e.target.value;
+                          setUsersList(updated);
+                        }}
+                        className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                        placeholder="Password"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <button
+                        type="button"
+                        disabled={usersList.length <= 1}
+                        onClick={() => {
+                          if (usersList.length > 1) {
+                            setUsersList(usersList.filter((_, i) => i !== idx));
+                          }
+                        }}
+                        className="w-full py-3 bg-red-950/20 hover:bg-red-900/40 text-red-400 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-red-400 font-bold uppercase text-[9px] tracking-wider border border-red-950 hover:border-red-500 rounded-xl transition-all"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

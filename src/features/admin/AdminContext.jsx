@@ -51,6 +51,11 @@ const DEFAULT_ROSTERS = {
 
 const DEFAULT_STAFF = [];
 
+const DEFAULT_ADMIN_USERS = [
+  { username: 'aniruth', password: 'Ramidi@2724' },
+  { username: 'hydra', password: 'hydra123' }
+];
+
 export function AdminProvider({ children }) {
   const [categories, setCategories] = useState(() => {
     const saved = localStorage.getItem('strikers_categories');
@@ -101,25 +106,26 @@ export function AdminProvider({ children }) {
     return DEFAULT_STAFF;
   });
 
-  const [adminUsername, setAdminUsername] = useState(() => {
-    return localStorage.getItem('strikers_admin_username') || 'admin';
-  });
-
-  const [adminPassword, setAdminPassword] = useState(() => {
-    return localStorage.getItem('strikers_admin_password') || 'strikersadmin123';
+  const [adminUsers, setAdminUsers] = useState(() => {
+    const saved = localStorage.getItem('strikers_admin_users');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Reset if it holds the old single admin setup or is invalid
+      const hasOldSingleAdmin = parsed.some(u => u.username === 'admin');
+      if (hasOldSingleAdmin) {
+        return DEFAULT_ADMIN_USERS;
+      }
+      return parsed;
+    }
+    return DEFAULT_ADMIN_USERS;
   });
 
   useEffect(() => {
-    localStorage.setItem('strikers_admin_username', adminUsername);
-  }, [adminUsername]);
+    localStorage.setItem('strikers_admin_users', JSON.stringify(adminUsers));
+  }, [adminUsers]);
 
-  useEffect(() => {
-    localStorage.setItem('strikers_admin_password', adminPassword);
-  }, [adminPassword]);
-
-  const updateAdminCredentials = (username, password) => {
-    setAdminUsername(username);
-    setAdminPassword(password);
+  const updateAdminUsers = (newUsers) => {
+    setAdminUsers(newUsers);
   };
 
   useEffect(() => {
@@ -238,9 +244,8 @@ export function AdminProvider({ children }) {
         homepageSettings,
         rostersState,
         staffState,
-        adminUsername,
-        adminPassword,
-        updateAdminCredentials,
+        adminUsers,
+        updateAdminUsers,
         toggleCategoryVisibility,
         toggleNavLinkVisibility,
         addCustomCategory,
