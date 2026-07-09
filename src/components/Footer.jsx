@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare } from 'lucide-react';
+import { AdminContext } from '../features/admin/AdminContext';
 
 const YoutubeIcon = ({ className }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -18,6 +19,7 @@ const InstagramIcon = ({ className }) => (
 );
 
 export default function Footer() {
+  const { homepageSettings } = useContext(AdminContext);
   return (
     <footer className="bg-[#080808] border-t border-strikers-border py-12 mt-auto">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -80,9 +82,9 @@ export default function Footer() {
         <div>
           <h4 className="text-xs uppercase tracking-widest font-bold text-white mb-4">Contact</h4>
           <p className="text-xs text-strikers-muted leading-relaxed">
-            Email: contact@strikersesports.in<br />
-            Business: info@strikersesports.in<br />
-            Support available 24/7.
+            Email: {homepageSettings?.contactEmail || 'contact@strikersesports.in'}<br />
+            Business: {homepageSettings?.businessEmail || 'info@strikersesports.in'}<br />
+            {homepageSettings?.supportInfo || 'Support available 24/7.'}
           </p>
         </div>
       </div>

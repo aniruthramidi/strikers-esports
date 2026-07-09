@@ -28,7 +28,10 @@ const DEFAULT_HOMEPAGE_SETTINGS = {
     { value: '5+', label: 'Professional Rosters' },
   ],
   aboutTitle: 'About Strikers',
-  aboutDesc: 'Started in 2019, Strikers Esports began as a passionate community server, serving as a hub for casual gamers to connect and play. Over time, this vibrant foundation naturally shifted focus toward competitive gaming, evolving into a structured esports organization. Driven by dedicated management and strategic execution, the organization scaled up its technical infrastructure, team logistics, and brand presence. Today, Strikers Esports stands as a professional entity that bridges community engagement with competitive excellence, particularly in mobile esports.'
+  aboutDesc: 'Started in 2019, Strikers Esports began as a passionate community server, serving as a hub for casual gamers to connect and play. Over time, this vibrant foundation naturally shifted focus toward competitive gaming, evolving into a structured esports organization. Driven by dedicated management and strategic execution, the organization scaled up its technical infrastructure, team logistics, and brand presence. Today, Strikers Esports stands as a professional entity that bridges community engagement with competitive excellence, particularly in mobile esports.',
+  contactEmail: 'contact@strikersesports.in',
+  businessEmail: 'info@strikersesports.in',
+  supportInfo: 'Support available 24/7.'
 };
 
 const DEFAULT_ROSTERS = {
@@ -74,7 +77,10 @@ export function AdminProvider({ children }) {
 
   const [homepageSettings, setHomepageSettings] = useState(() => {
     const saved = localStorage.getItem('strikers_homepage_settings');
-    return saved ? JSON.parse(saved) : DEFAULT_HOMEPAGE_SETTINGS;
+    if (saved) {
+      return { ...DEFAULT_HOMEPAGE_SETTINGS, ...JSON.parse(saved) };
+    }
+    return DEFAULT_HOMEPAGE_SETTINGS;
   });
 
   const [rostersState, setRostersState] = useState(() => {
@@ -94,6 +100,27 @@ export function AdminProvider({ children }) {
     }
     return DEFAULT_STAFF;
   });
+
+  const [adminUsername, setAdminUsername] = useState(() => {
+    return localStorage.getItem('strikers_admin_username') || 'admin';
+  });
+
+  const [adminPassword, setAdminPassword] = useState(() => {
+    return localStorage.getItem('strikers_admin_password') || 'strikersadmin123';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('strikers_admin_username', adminUsername);
+  }, [adminUsername]);
+
+  useEffect(() => {
+    localStorage.setItem('strikers_admin_password', adminPassword);
+  }, [adminPassword]);
+
+  const updateAdminCredentials = (username, password) => {
+    setAdminUsername(username);
+    setAdminPassword(password);
+  };
 
   useEffect(() => {
     localStorage.setItem('strikers_categories', JSON.stringify(categories));
@@ -211,6 +238,9 @@ export function AdminProvider({ children }) {
         homepageSettings,
         rostersState,
         staffState,
+        adminUsername,
+        adminPassword,
+        updateAdminCredentials,
         toggleCategoryVisibility,
         toggleNavLinkVisibility,
         addCustomCategory,

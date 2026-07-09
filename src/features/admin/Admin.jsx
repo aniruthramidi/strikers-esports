@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { AdminContext } from './AdminContext';
-import { Eye, EyeOff, Plus, Trash2, FolderPlus, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus, Info } from 'lucide-react';
+import { Eye, EyeOff, Plus, Trash2, FolderPlus, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus, Info, Settings } from 'lucide-react';
 
 export default function Admin() {
-  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
+  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsername, adminPassword, updateAdminCredentials, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
   
   // Login State
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -25,7 +25,7 @@ export default function Admin() {
   // Homepage Form State
   const [heroTitle, setHeroTitle] = useState(homepageSettings?.heroTitle || 'STRIKERS');
   const [heroTitleHighlight, setHeroTitleHighlight] = useState(homepageSettings?.heroTitleHighlight || 'ESPORTS');
-  const [heroDesc, setHeroDesc] = useState(homepageSettings?.heroDesc || '');
+  const [heroDesc, setHeroDesc] = useState(homepageSettings?.heroDesc || 'Delivering professional gaming excellence through premium tournaments, top-tier esports services, content production, and official team rosters. Join the competitive revolution.');
   const [stats, setStats] = useState(homepageSettings?.stats || [
     { value: '15+', label: 'Tournament Cups' },
     { value: '₹25L+', label: 'Total Prize Pools' },
@@ -43,9 +43,30 @@ export default function Admin() {
   // Staff Editor State
   const [staffSuccessMsg, setStaffSuccessMsg] = useState('');
 
+  // Settings State
+  const [contactEmail, setContactEmail] = useState(homepageSettings?.contactEmail || 'contact@strikersesports.in');
+  const [businessEmail, setBusinessEmail] = useState(homepageSettings?.businessEmail || 'info@strikersesports.in');
+  const [supportInfo, setSupportInfo] = useState(homepageSettings?.supportInfo || 'Support available 24/7.');
+  const [newUsername, setNewUsername] = useState(adminUsername);
+  const [newPassword, setNewPassword] = useState(adminPassword);
+  const [settingsSuccessMsg, setSettingsSuccessMsg] = useState('');
+
+  const handleSettingsSave = (e) => {
+    e.preventDefault();
+    updateHomepageSettings({
+      ...homepageSettings,
+      contactEmail,
+      businessEmail,
+      supportInfo
+    });
+    updateAdminCredentials(newUsername, newPassword);
+    setSettingsSuccessMsg('Credentials and Contact details updated successfully!');
+    setTimeout(() => setSettingsSuccessMsg(''), 4000);
+  };
+
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'strikersadmin123') {
+    if (username === adminUsername && password === adminPassword) {
       setIsLoggedIn(true);
       sessionStorage.setItem('strikers_admin_logged', 'true');
       setLoginError('');
@@ -174,8 +195,8 @@ export default function Admin() {
           {/* Development Hint Box */}
           <div className="border border-neutral-800 bg-black/40 p-4 rounded-2xl text-[10px] text-strikers-muted space-y-1 leading-relaxed">
             <p className="font-bold text-white uppercase tracking-wider text-[8px]">Authentication Credentials Note:</p>
-            <p>Username: <strong className="text-white">admin</strong></p>
-            <p>Password: <strong className="text-white">strikersadmin123</strong></p>
+            <p>Username: <strong className="text-white">{adminUsername}</strong></p>
+            <p>Password: <strong className="text-white">{adminPassword}</strong></p>
           </div>
         </div>
       </div>
@@ -282,6 +303,16 @@ export default function Admin() {
           }`}
         >
           <ClipboardList className="w-4 h-4" /> Shop Orders ({orders.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`flex items-center gap-2 px-4 py-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-all ${
+            activeTab === 'settings'
+              ? 'border-white text-white'
+              : 'border-transparent text-strikers-muted hover:text-white'
+          }`}
+        >
+          <Settings className="w-4 h-4" /> Credentials & Contacts
         </button>
       </div>
 
@@ -881,6 +912,109 @@ export default function Admin() {
               <p className="text-xs text-strikers-muted text-center py-8">No order submissions logged yet.</p>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Tab Content: Settings (Credentials & Contacts) */}
+      {activeTab === 'settings' && (
+        <div className="max-w-3xl mx-auto border border-strikers-border bg-strikers-gray p-8 rounded-3xl space-y-6">
+          <div className="space-y-2 border-b border-strikers-border pb-4">
+            <h3 className="text-lg font-black uppercase text-white">Credentials & Contacts Editor</h3>
+            <p className="text-xs text-strikers-muted font-semibold">
+              Manage organization contact information and update administrator credentials.
+            </p>
+          </div>
+
+          {settingsSuccessMsg && (
+            <div className="p-4 rounded-xl text-xs font-bold uppercase tracking-wider border bg-emerald-950/20 border-emerald-500/50 text-emerald-400">
+              {settingsSuccessMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleSettingsSave} className="space-y-6 text-xs">
+            {/* Contact Details */}
+            <div className="space-y-4">
+              <h4 className="font-bold text-[10px] uppercase tracking-wider text-white border-b border-neutral-800 pb-1">
+                Contact Settings
+              </h4>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-strikers-muted">Contact Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                    placeholder="contact@strikersesports.in"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-strikers-muted">Business Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={businessEmail}
+                    onChange={(e) => setBusinessEmail(e.target.value)}
+                    className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                    placeholder="info@strikersesports.in"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] uppercase font-bold text-strikers-muted">Support Details / Availability</label>
+                <input
+                  type="text"
+                  required
+                  value={supportInfo}
+                  onChange={(e) => setSupportInfo(e.target.value)}
+                  className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                  placeholder="Support available 24/7."
+                />
+              </div>
+            </div>
+
+            {/* Admin Credentials */}
+            <div className="space-y-4 pt-4 border-t border-neutral-800">
+              <h4 className="font-bold text-[10px] uppercase tracking-wider text-white border-b border-neutral-800 pb-1">
+                Security & Portal Login Credentials
+              </h4>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-strikers-muted">Admin Username</label>
+                  <input
+                    type="text"
+                    required
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                    placeholder="admin"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-strikers-muted">Admin Password</label>
+                  <input
+                    type="text"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                    placeholder="strikersadmin123"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3.5 bg-white text-black font-black uppercase tracking-wider text-xs rounded-full hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+            >
+              <Save className="w-4 h-4" /> Save Settings
+            </button>
+          </form>
         </div>
       )}
     </div>
