@@ -45,6 +45,76 @@ export default function Admin() {
   // Staff Editor State
   const [staffSuccessMsg, setStaffSuccessMsg] = useState('');
 
+  // Image Cropper State
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState('');
+  const [cropScale, setCropScale] = useState(1);
+  const [cropRotation, setCropRotation] = useState(0); // degrees: 0, 90, 180, 270
+  const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [onCropConfirm, setOnCropConfirm] = useState(null);
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - cropOffset.x, y: e.clientY - cropOffset.y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    setCropOffset({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleCropSave = () => {
+    const img = new Image();
+    img.src = cropImageSrc;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 300;
+      canvas.height = 300;
+      const ctx = canvas.getContext('2d');
+
+      // Clear with black background
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, 300, 300);
+
+      // Translate to center to apply rotation/scaling
+      ctx.translate(150, 150);
+      ctx.rotate((cropRotation * Math.PI) / 180);
+      ctx.scale(cropScale, cropScale);
+
+      // Apply drag offset
+      ctx.translate(cropOffset.x / cropScale, cropOffset.y / cropScale);
+
+      // Scale to cover 300x300 viewport
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      const ratio = Math.max(300 / imgWidth, 300 / imgHeight);
+      const drawWidth = imgWidth * ratio;
+      const drawHeight = imgHeight * ratio;
+
+      ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+
+      // Compress to lightweight JPEG base64 string
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      if (onCropConfirm) {
+        onCropConfirm(dataUrl);
+      }
+      setCropModalOpen(false);
+      setCropImageSrc('');
+      setCropScale(1);
+      setCropRotation(0);
+      setCropOffset({ x: 0, y: 0 });
+    };
+  };
+
   // Settings State
   const [contactEmail, setContactEmail] = useState(homepageSettings?.contactEmail || 'contact@strikersesports.in');
   const [businessEmail, setBusinessEmail] = useState(homepageSettings?.businessEmail || 'info@strikersesports.in');
@@ -683,15 +753,41 @@ export default function Admin() {
                       className="w-full bg-black border border-strikers-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[9px] uppercase font-bold text-strikers-muted">Photo Image Link (URL)</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. https://domain.com/photo.jpg or /public/photo.png"
-                      value={player.photo}
-                      onChange={(e) => handlePlayerChange(idx, 'photo', e.target.value)}
-                      className="w-full bg-black border border-strikers-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white"
-                    />
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] uppercase font-bold text-strikers-muted block">Player Picture (JPEG/PNG)</label>
+                    <div className="flex gap-2 items-center">
+                      <label className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-[10px] font-black uppercase tracking-wider text-white border border-neutral-700 rounded-xl cursor-pointer transition-colors">
+                        <span>Choose File & Crop</span>
+                        <input
+                          type="file"
+                          accept="image/png, image/jpeg"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                setCropImageSrc(event.target.result);
+                                setOnCropConfirm(() => (croppedBase64) => {
+                                  handlePlayerChange(idx, 'photo', croppedBase64);
+                                });
+                                setCropModalOpen(true);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                      {player.photo && (
+                        <button
+                          type="button"
+                          onClick={() => handlePlayerChange(idx, 'photo', '')}
+                          className="px-3 py-2 bg-red-950/20 hover:bg-red-900/40 text-red-400 border border-red-950 hover:border-red-500 rounded-xl text-[10px] font-bold uppercase transition-colors"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -774,17 +870,42 @@ export default function Admin() {
                     />
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 gap-3 text-xs">
-                  <div className="space-y-1">
-                    <label className="text-[9px] uppercase font-bold text-strikers-muted">Photo URL Link</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. /public/staff-ceo.png"
-                      value={staff.photo || ''}
-                      onChange={(e) => handleStaffChange(idx, 'photo', e.target.value)}
-                      className="w-full bg-black border border-strikers-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white"
-                    />
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] uppercase font-bold text-strikers-muted block">Staff Photo (JPEG/PNG)</label>
+                    <div className="flex gap-2 items-center">
+                      <label className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-[10px] font-black uppercase tracking-wider text-white border border-neutral-700 rounded-xl cursor-pointer transition-colors">
+                        <span>Choose File & Crop</span>
+                        <input
+                          type="file"
+                          accept="image/png, image/jpeg"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                setCropImageSrc(event.target.result);
+                                setOnCropConfirm(() => (croppedBase64) => {
+                                  handleStaffChange(idx, 'photo', croppedBase64);
+                                });
+                                setCropModalOpen(true);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                      {staff.photo && (
+                        <button
+                          type="button"
+                          onClick={() => handleStaffChange(idx, 'photo', '')}
+                          className="px-3 py-2 bg-red-950/20 hover:bg-red-900/40 text-red-400 border border-red-950 hover:border-red-500 rounded-xl text-[10px] font-bold uppercase transition-colors"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[9px] uppercase font-bold text-strikers-muted">Operational Bio</label>
@@ -1059,6 +1180,106 @@ export default function Admin() {
               <Save className="w-4 h-4" /> Save Settings
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Crop/Modify Modal */}
+      {cropModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-strikers-gray border border-strikers-border rounded-3xl p-6 w-full max-w-sm space-y-6">
+            <div className="space-y-1">
+              <h3 className="text-lg font-black uppercase text-white">Crop & Modify Picture</h3>
+              <p className="text-xs text-strikers-muted">Drag to position, use controls to zoom or rotate.</p>
+            </div>
+
+            <div className="flex justify-center py-2">
+              <div 
+                className="w-[260px] h-[260px] border border-dashed border-white/20 relative overflow-hidden bg-black rounded-2xl cursor-move select-none"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                <img
+                  src={cropImageSrc}
+                  alt="Crop Preview"
+                  style={{
+                    transform: `translate(${cropOffset.x}px, ${cropOffset.y}px) rotate(${cropRotation}deg) scale(${cropScale})`,
+                    transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+                    transformOrigin: 'center center',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    pointerEvents: 'none'
+                  }}
+                />
+                {/* Crop frame overlay mask */}
+                <div className="absolute inset-0 border-[30px] border-black/70 pointer-events-none flex items-center justify-center">
+                  <div className="w-full h-full border border-white/40 rounded-xl"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-[10px] uppercase font-bold text-strikers-muted">
+                  <span>Zoom / Scale ({Math.round(cropScale * 100)}%)</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="3"
+                  step="0.05"
+                  value={cropScale}
+                  onChange={(e) => setCropScale(parseFloat(e.target.value))}
+                  className="w-full accent-white"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setCropRotation((r) => (r + 90) % 360)}
+                  className="flex-1 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white font-bold uppercase tracking-wider text-[10px] rounded-xl border border-neutral-700 transition-colors"
+                >
+                  Rotate 90°
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCropScale(1);
+                    setCropRotation(0);
+                    setCropOffset({ x: 0, y: 0 });
+                  }}
+                  className="flex-1 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 font-bold uppercase tracking-wider text-[10px] rounded-xl border border-neutral-800 transition-colors"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            {/* Save/Cancel Actions */}
+            <div className="flex gap-3 pt-2 border-t border-neutral-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setCropModalOpen(false);
+                  setCropImageSrc('');
+                }}
+                className="flex-1 py-3 border border-neutral-800 text-neutral-400 hover:text-white font-black uppercase tracking-wider text-xs rounded-full transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleCropSave}
+                className="flex-1 py-3 bg-white text-black hover:bg-neutral-200 font-black uppercase tracking-wider text-xs rounded-full transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

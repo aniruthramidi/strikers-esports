@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
 
 export const AdminContext = createContext();
 
@@ -120,13 +120,58 @@ export function AdminProvider({ children }) {
     return DEFAULT_ADMIN_USERS;
   });
 
-  useEffect(() => {
-    localStorage.setItem('strikers_admin_users', JSON.stringify(adminUsers));
-  }, [adminUsers]);
-
   const updateAdminUsers = (newUsers) => {
     setAdminUsers(newUsers);
   };
+
+  const isHydrated = useRef(false);
+
+  useEffect(() => {
+    fetch('/api/get-data')
+      .then(res => res.json())
+      .then(data => {
+        if (data && Object.keys(data).length > 0) {
+          if (data.categories) setCategories(data.categories);
+          if (data.orders) setOrders(data.orders);
+          if (data.navLinksState) setNavLinksState(data.navLinksState);
+          if (data.homepageSettings) setHomepageSettings(data.homepageSettings);
+          if (data.rostersState) setRostersState(data.rostersState);
+          if (data.staffState) setStaffState(data.staffState);
+          if (data.adminUsers) setAdminUsers(data.adminUsers);
+        }
+        isHydrated.current = true;
+      })
+      .catch(err => {
+        console.error('Error hydrating state from KV:', err);
+        isHydrated.current = true;
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated.current) return;
+    
+    const payload = {
+      categories,
+      orders,
+      navLinksState,
+      homepageSettings,
+      rostersState,
+      staffState,
+      adminUsers
+    };
+
+    fetch('/api/save-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    }).catch(err => console.error('Database sync failed:', err));
+  }, [categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers]);
+
+  useEffect(() => {
+    localStorage.setItem('strikers_admin_users', JSON.stringify(adminUsers));
+  }, [adminUsers]);
 
   useEffect(() => {
     localStorage.setItem('strikers_categories', JSON.stringify(categories));
