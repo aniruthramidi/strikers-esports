@@ -3,7 +3,7 @@ import { AdminContext } from './AdminContext';
 import { Eye, EyeOff, Plus, Trash2, FolderPlus, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus, Info, Settings } from 'lucide-react';
 
 export default function Admin() {
-  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers, updateAdminUsers, isHydrated, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
+  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers, updateAdminUsers, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
   
   // Login State
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -37,27 +37,6 @@ export default function Admin() {
   const [aboutTitle, setAboutTitle] = useState(homepageSettings?.aboutTitle || 'About Strikers');
   const [aboutDesc, setAboutDesc] = useState(homepageSettings?.aboutDesc || 'Building a legacy in competitive gaming, Strikers Esports is driven by a commitment to excellence, player development, and community.');
   const [homepageMessage, setHomepageMessage] = useState('');
-
-  // Sync hydrated settings and users into local form states
-  useEffect(() => {
-    if (homepageSettings) {
-      if (homepageSettings.heroTitle) setHeroTitle(homepageSettings.heroTitle);
-      if (homepageSettings.heroTitleHighlight) setHeroTitleHighlight(homepageSettings.heroTitleHighlight);
-      if (homepageSettings.heroDesc) setHeroDesc(homepageSettings.heroDesc);
-      if (homepageSettings.stats) setStats(homepageSettings.stats);
-      if (homepageSettings.aboutTitle) setAboutTitle(homepageSettings.aboutTitle);
-      if (homepageSettings.aboutDesc) setAboutDesc(homepageSettings.aboutDesc);
-      if (homepageSettings.contactEmail) setContactEmail(homepageSettings.contactEmail);
-      if (homepageSettings.businessEmail) setBusinessEmail(homepageSettings.businessEmail);
-      if (homepageSettings.supportInfo) setSupportInfo(homepageSettings.supportInfo);
-    }
-  }, [homepageSettings]);
-
-  useEffect(() => {
-    if (adminUsers && adminUsers.length > 0) {
-      setUsersList(adminUsers);
-    }
-  }, [adminUsers]);
 
   // Roster Editor State
   const [rosterTab, setRosterTab] = useState('bgmi');
@@ -281,17 +260,9 @@ export default function Admin() {
 
             <button
               type="submit"
-              disabled={!isHydrated}
-              className="w-full py-3.5 bg-white text-black font-black uppercase tracking-wider text-xs rounded-full hover:bg-gray-200 transition-colors disabled:bg-neutral-800 disabled:text-neutral-500 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-white text-black font-black uppercase tracking-wider text-xs rounded-full hover:bg-gray-200 transition-colors"
             >
-              {!isHydrated ? (
-                <>
-                  <div className="w-3.5 h-3.5 border-2 border-neutral-600 border-t-white rounded-full animate-spin"></div>
-                  Connecting...
-                </>
-              ) : (
-                'Sign In'
-              )}
+              Sign In
             </button>
           </form>
 

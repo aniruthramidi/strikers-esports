@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
 
 export const AdminContext = createContext();
 
@@ -124,7 +124,7 @@ export function AdminProvider({ children }) {
     setAdminUsers(newUsers);
   };
 
-  const [isHydrated, setIsHydrated] = useState(false);
+  const isHydrated = useRef(false);
 
   useEffect(() => {
     fetch('/api/get-data')
@@ -139,16 +139,16 @@ export function AdminProvider({ children }) {
           if (data.staffState) setStaffState(data.staffState);
           if (data.adminUsers) setAdminUsers(data.adminUsers);
         }
-        setIsHydrated(true);
+        isHydrated.current = true;
       })
       .catch(err => {
         console.error('Error hydrating state from KV:', err);
-        setIsHydrated(true);
+        isHydrated.current = true;
       });
   }, []);
 
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated.current) return;
     
     const payload = {
       categories,
@@ -167,7 +167,7 @@ export function AdminProvider({ children }) {
       },
       body: JSON.stringify(payload)
     }).catch(err => console.error('Database sync failed:', err));
-  }, [isHydrated, categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers]);
+  }, [categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers]);
 
   useEffect(() => {
     localStorage.setItem('strikers_admin_users', JSON.stringify(adminUsers));
@@ -291,7 +291,6 @@ export function AdminProvider({ children }) {
         staffState,
         adminUsers,
         updateAdminUsers,
-        isHydrated,
         toggleCategoryVisibility,
         toggleNavLinkVisibility,
         addCustomCategory,
