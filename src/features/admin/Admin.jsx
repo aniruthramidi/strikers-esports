@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AdminContext } from './AdminContext';
-import { Eye, EyeOff, Plus, Trash2, FolderPlus, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus, Info, Settings } from 'lucide-react';
+import { Eye, EyeOff, Plus, Trash2, FolderPlus, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus, Info, Settings, X, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Admin() {
   const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers, updateAdminUsers, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
@@ -13,6 +14,14 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
+  // OTP Verification States
+  const [showOtpScreen, setShowOtpScreen] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [targetUserEmail, setTargetUserEmail] = useState('');
+  const [showNotification, setShowNotification] = useState(false);
+  const [otpError, setOtpError] = useState('');
+
   // Active Panel Tab
   const [activeTab, setActiveTab] = useState('visibility'); // 'visibility', 'navigation', 'homepage', 'roster', 'staff', 'builder', 'orders'
 
@@ -21,8 +30,6 @@ export default function Admin() {
   const [catName, setCatName] = useState('');
   const [catDesc, setCatDesc] = useState('');
   const [builderMessage, setBuilderMessage] = useState({ text: '', type: '' });
-
-
 
   // Homepage Form State
   const [heroTitle, setHeroTitle] = useState(homepageSettings?.heroTitle || 'STRIKERS');
@@ -38,11 +45,13 @@ export default function Admin() {
   const [aboutDesc, setAboutDesc] = useState(homepageSettings?.aboutDesc || 'Building a legacy in competitive gaming, Strikers Esports is driven by a commitment to excellence, player development, and community.');
   const [homepageMessage, setHomepageMessage] = useState('');
 
-  // Roster Editor State
+  // Roster Form State
+  const [rosterMessage, setRosterMessage] = useState({ text: '', type: '' });
   const [rosterTab, setRosterTab] = useState('bgmi');
   const [rosterSuccessMsg, setRosterSuccessMsg] = useState('');
 
-  // Staff Editor State
+  // Staff Form State
+  const [staffMessage, setStaffMessage] = useState({ text: '', type: '' });
   const [staffSuccessMsg, setStaffSuccessMsg] = useState('');
 
   // Image Cropper State
@@ -219,61 +228,161 @@ export default function Admin() {
     return (
       <div className="pt-24 pb-20 px-6 max-w-7xl mx-auto flex items-center justify-center min-h-[75vh]">
         <div className="border border-strikers-border bg-strikers-gray p-8 rounded-3xl w-full max-w-md space-y-8 animate-fadeIn">
-          <div className="text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center font-bold mx-auto">
-              <Lock className="w-6 h-6" />
-            </div>
-            <h2 className="text-2xl font-black uppercase text-white tracking-tight">Admin Authentication</h2>
-            <p className="text-xs text-strikers-muted">Please sign in to access security and portal filters.</p>
-          </div>
+          
+          {!showOtpScreen ? (
+            <>
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center font-bold mx-auto">
+                  <Lock className="w-6 h-6" />
+                </div>
+                <h2 className="text-2xl font-black uppercase text-white tracking-tight">Admin Authentication</h2>
+                <p className="text-xs text-strikers-muted">Please sign in to access security and portal filters.</p>
+              </div>
 
-          {loginError && (
-            <div className="p-3 border border-red-500/50 bg-red-950/20 text-red-400 text-xs font-bold uppercase tracking-wider rounded-xl text-center">
-              {loginError}
-            </div>
+              {loginError && (
+                <div className="p-3 border border-red-500/50 bg-red-950/20 text-red-400 text-xs font-bold uppercase tracking-wider rounded-xl text-center">
+                  {loginError}
+                </div>
+              )}
+
+              <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-strikers-muted">Username</label>
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                    placeholder="Enter admin username"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-strikers-muted">Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                    placeholder="••••••••••••"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 bg-white text-black font-black uppercase tracking-wider text-xs rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  Sign In
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center font-bold mx-auto">
+                  <Shield className="w-6 h-6" />
+                </div>
+                <h2 className="text-2xl font-black uppercase text-white tracking-tight">Security Check</h2>
+                <p className="text-xs text-strikers-muted">
+                  We've sent a 6-digit OTP code to <strong className="text-white">{targetUserEmail}</strong>.
+                </p>
+              </div>
+
+              {otpError && (
+                <div className="p-3 border border-red-500/50 bg-red-950/20 text-red-400 text-xs font-bold uppercase tracking-wider rounded-xl text-center">
+                  {otpError}
+                </div>
+              )}
+
+              <form onSubmit={handleOtpSubmit} className="space-y-4 text-xs">
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-strikers-muted">Enter Verification Code</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                    className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-center text-lg font-black tracking-[0.2em] text-white focus:outline-none focus:border-white"
+                    placeholder="000000"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    className="w-full py-3.5 bg-white text-black font-black uppercase tracking-wider text-xs rounded-full hover:bg-gray-200 transition-colors"
+                  >
+                    Verify & Sign In
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowOtpScreen(false);
+                      setShowNotification(false);
+                    }}
+                    className="w-full py-3.5 border border-strikers-border hover:border-white text-white font-black uppercase tracking-wider text-xs rounded-full transition-colors"
+                  >
+                    Back
+                  </button>
+                </div>
+              </form>
+            </>
           )}
-
-          <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
-            <div className="space-y-1">
-              <label className="text-[9px] uppercase font-bold text-strikers-muted">Username</label>
-              <input
-                type="text"
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
-                placeholder="Enter admin username"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[9px] uppercase font-bold text-strikers-muted">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
-                placeholder="••••••••••••"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3.5 bg-white text-black font-black uppercase tracking-wider text-xs rounded-full hover:bg-gray-200 transition-colors"
-            >
-              Sign In
-            </button>
-          </form>
 
           {/* Development Hint Box */}
           <div className="border border-neutral-800 bg-black/40 p-4 rounded-2xl text-[10px] text-strikers-muted space-y-1 leading-relaxed">
             <p className="font-bold text-white uppercase tracking-wider text-[8px]">Authentication Credentials Note:</p>
             {(adminUsers || []).map((u, i) => (
-              <p key={i}>User {i + 1}: <strong className="text-white">{u.username}</strong> / <strong className="text-white">{u.password}</strong></p>
+              <p key={i}>User {i + 1}: <strong className="text-white">{u.username}</strong> / <strong className="text-white">{u.password}</strong> (<span className="text-neutral-500 font-mono">{u.email || `${u.username}@strikersesports.in`}</span>)</p>
             ))}
           </div>
         </div>
+
+        {/* Simulated Email Notification Toast */}
+        <AnimatePresence>
+          {showNotification && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.9 }}
+              className="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-neutral-900 border border-white/10 rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] space-y-3"
+            >
+              <div className="flex justify-between items-start">
+                <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950/40 border border-emerald-800 px-2 py-0.5 rounded-full">
+                  Simulated Email Inbox
+                </span>
+                <button
+                  onClick={() => setShowNotification(false)}
+                  className="text-neutral-400 hover:text-white transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-1 text-xs">
+                <p className="text-neutral-400">
+                  <span className="font-bold text-white">From:</span> Security Service &lt;security@strikersesports.me&gt;
+                </p>
+                <p className="text-neutral-400">
+                  <span className="font-bold text-white">To:</span> {targetUserEmail}
+                </p>
+                <p className="text-neutral-400">
+                  <span className="font-bold text-white">Subject:</span> Admin Login Verification OTP
+                </p>
+              </div>
+              <div className="border-t border-neutral-800 pt-3 text-xs leading-relaxed text-neutral-300">
+                <p>Hello Administrator,</p>
+                <p className="mt-1">Use the following verification code to complete your login session:</p>
+                <div className="my-3 bg-black border border-neutral-800 rounded-xl py-3 text-center text-lg font-black tracking-[0.3em] text-white">
+                  {generatedOtp}
+                </div>
+                <p className="text-[10px] text-neutral-500">This code is valid for 10 minutes. If you did not request this code, please ignore this message.</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -1112,7 +1221,7 @@ export default function Admin() {
                   type="button"
                   onClick={() => {
                     if (usersList.length < 5) {
-                      setUsersList([...usersList, { username: '', password: '' }]);
+                      setUsersList([...usersList, { username: '', password: '', email: '' }]);
                     }
                   }}
                   className="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-[9px] uppercase font-bold text-white transition-colors"
@@ -1124,7 +1233,7 @@ export default function Admin() {
               <div className="space-y-4">
                 {usersList.map((user, idx) => (
                   <div key={idx} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end bg-black/20 p-4 rounded-2xl border border-neutral-900">
-                    <div className="sm:col-span-5 space-y-1">
+                    <div className="sm:col-span-3 space-y-1">
                       <label className="text-[9px] uppercase font-bold text-strikers-muted">User {idx + 1} Username</label>
                       <input
                         type="text"
@@ -1139,7 +1248,7 @@ export default function Admin() {
                         placeholder="Username"
                       />
                     </div>
-                    <div className="sm:col-span-5 space-y-1">
+                    <div className="sm:col-span-3 space-y-1">
                       <label className="text-[9px] uppercase font-bold text-strikers-muted">User {idx + 1} Password</label>
                       <input
                         type="text"
@@ -1152,6 +1261,21 @@ export default function Admin() {
                         }}
                         className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
                         placeholder="Password"
+                      />
+                    </div>
+                    <div className="sm:col-span-4 space-y-1">
+                      <label className="text-[9px] uppercase font-bold text-strikers-muted">User {idx + 1} Email *</label>
+                      <input
+                        type="email"
+                        required
+                        value={user.email || ''}
+                        onChange={(e) => {
+                          const updated = [...usersList];
+                          updated[idx].email = e.target.value;
+                          setUsersList(updated);
+                        }}
+                        className="w-full bg-black border border-strikers-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white"
+                        placeholder="admin@strikersesports.in"
                       />
                     </div>
                     <div className="sm:col-span-2">
@@ -1170,6 +1294,31 @@ export default function Admin() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* System Utilities */}
+            <div className="space-y-4 pt-4 border-t border-neutral-800 mb-6">
+              <h4 className="font-bold text-[10px] uppercase tracking-wider text-white border-b border-neutral-800 pb-1">
+                System Utilities
+              </h4>
+              <div className="bg-black/20 p-4 rounded-2xl border border-neutral-900 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-white uppercase">Replay 3D Intro Splash</p>
+                  <p className="text-[9px] text-strikers-muted leading-relaxed">
+                    Clear the visited status flag so the 3D cinematic intro plays upon the next landing page visit.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.removeItem('strikers_visited');
+                    alert('Visitations reset! The 3D intro will play on the next website visit/reload.');
+                  }}
+                  className="px-4 py-2 border border-strikers-border hover:border-white rounded-xl text-[10px] uppercase font-bold text-white transition-colors cursor-pointer shrink-0"
+                >
+                  Reset 3D Intro
+                </button>
               </div>
             </div>
 

@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AdminContext } from '../features/admin/AdminContext';
 import { Menu, X, Users, ShoppingBag, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,22 +74,30 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Drawer */}
-      {isOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-black/95 border-b border-strikers-border py-6 px-6 space-y-4 flex flex-col animate-fadeIn">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              onClick={() => setIsOpen(false)}
-              className={`text-sm uppercase tracking-wider font-semibold py-2 block ${
-                isActive(link.path) ? 'text-white border-l-2 border-white pl-3' : 'text-strikers-muted hover:text-white'
-              }`}
-            >
-              {link.name}
-            </Link>
-          ))}
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="md:hidden absolute top-20 left-0 w-full bg-black/95 border-b border-strikers-border py-6 px-6 space-y-4 flex flex-col overflow-hidden"
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
+                className={`text-sm uppercase tracking-wider font-semibold py-2 block ${
+                  isActive(link.path) ? 'text-white border-l-2 border-white pl-3' : 'text-strikers-muted hover:text-white'
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

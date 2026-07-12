@@ -52,8 +52,8 @@ const DEFAULT_ROSTERS = {
 const DEFAULT_STAFF = [];
 
 const DEFAULT_ADMIN_USERS = [
-  { username: 'aniruth', password: 'Ramidi@2724' },
-  { username: 'hydra', password: 'hydra123' }
+  { username: 'aniruth', password: 'Ramidi@2724', email: 'aniruth@strikersesports.in' },
+  { username: 'hydra', password: 'hydra123', email: 'hydra@strikersesports.in' }
 ];
 
 export function AdminProvider({ children }) {
@@ -115,7 +115,11 @@ export function AdminProvider({ children }) {
       if (hasOldSingleAdmin) {
         return DEFAULT_ADMIN_USERS;
       }
-      return parsed;
+      // Ensure all migrated users have email addresses
+      return parsed.map(u => ({
+        ...u,
+        email: u.email || `${u.username || 'admin'}@strikersesports.in`
+      }));
     }
     return DEFAULT_ADMIN_USERS;
   });

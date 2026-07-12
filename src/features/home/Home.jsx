@@ -25,9 +25,9 @@ export default function Home() {
 
         <div className="relative max-w-4xl mx-auto text-center space-y-8 z-10">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-strikers-border bg-strikers-gray/80 text-xs font-semibold tracking-wider text-strikers-muted uppercase"
           >
             <Star className="w-3.5 h-3.5 text-white" />
@@ -35,27 +35,27 @@ export default function Home() {
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 1.0, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tight text-white leading-tight"
           >
             {heroTitle} <span className="text-gradient">{heroTitleHighlight}</span>
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 1.0, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="text-sm sm:text-lg text-strikers-muted max-w-2xl mx-auto leading-relaxed"
           >
             {heroDesc}
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            transition={{ duration: 1.0, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4"
           >
             <Link
@@ -129,8 +129,11 @@ export default function Home() {
           {/* Lineup Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {activeRosterList.map((p, idx) => (
-              <div
-                key={idx}
+              <motion.div
+                key={`${lineupTab}-${idx}`}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
                 className="group border border-strikers-border bg-black rounded-3xl overflow-hidden hover:border-white transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Visual Avatar Card Box */}
@@ -168,7 +171,7 @@ export default function Home() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 

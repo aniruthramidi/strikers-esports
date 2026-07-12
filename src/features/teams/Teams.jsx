@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AdminContext } from '../admin/AdminContext';
 import { Shield, Flame } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Teams() {
   const { rostersState, staffState } = useContext(AdminContext);
@@ -62,8 +63,11 @@ export default function Teams() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {currentRosterInfo[activeRoster].players.map((player, idx) => (
-              <div
-                key={idx}
+              <motion.div
+                key={`${activeRoster}-${idx}`}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
                 className="border border-strikers-border bg-strikers-gray rounded-3xl overflow-hidden hover:border-white transition-all duration-300 relative group flex flex-col justify-between min-h-[320px]"
               >
                 {/* Photo Box */}
@@ -91,7 +95,7 @@ export default function Teams() {
                   </div>
                   <p className="text-[9px] uppercase font-bold text-strikers-muted pt-2 border-t border-white/5">{player.role}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -108,8 +112,11 @@ export default function Teams() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {(staffState || []).map((staff, idx) => (
-            <div
+            <motion.div
               key={idx}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
               className="border border-strikers-border bg-strikers-gray rounded-3xl overflow-hidden hover:border-white transition-all duration-300 flex flex-col justify-between min-h-[360px]"
             >
               {/* Photo Box */}
@@ -134,7 +141,7 @@ export default function Teams() {
                 </div>
                 <p className="text-xs text-neutral-400 leading-relaxed font-semibold">{staff.bio}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
