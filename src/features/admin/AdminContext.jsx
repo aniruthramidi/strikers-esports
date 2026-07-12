@@ -128,6 +128,11 @@ export function AdminProvider({ children }) {
     setAdminUsers(newUsers);
   };
 
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('strikers_messages');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const isHydrated = useRef(false);
 
   useEffect(() => {
@@ -142,6 +147,7 @@ export function AdminProvider({ children }) {
           if (data.rostersState) setRostersState(data.rostersState);
           if (data.staffState) setStaffState(data.staffState);
           if (data.adminUsers) setAdminUsers(data.adminUsers);
+          if (data.messages) setMessages(data.messages);
         }
         isHydrated.current = true;
       })
@@ -161,7 +167,8 @@ export function AdminProvider({ children }) {
       homepageSettings,
       rostersState,
       staffState,
-      adminUsers
+      adminUsers,
+      messages
     };
 
     fetch('/api/save-data', {
@@ -171,7 +178,7 @@ export function AdminProvider({ children }) {
       },
       body: JSON.stringify(payload)
     }).catch(err => console.error('Database sync failed:', err));
-  }, [categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers]);
+  }, [categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers, messages]);
 
   useEffect(() => {
     localStorage.setItem('strikers_admin_users', JSON.stringify(adminUsers));
@@ -200,6 +207,25 @@ export function AdminProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('strikers_staff', JSON.stringify(staffState));
   }, [staffState]);
+
+  useEffect(() => {
+    localStorage.setItem('strikers_messages', JSON.stringify(messages));
+  }, [messages]);
+
+  const addContactMessage = (name, email, text) => {
+    const newMessage = {
+      id: Date.now().toString(),
+      name,
+      email,
+      text,
+      timestamp: new Date().toISOString()
+    };
+    setMessages((prev) => [newMessage, ...prev]);
+  };
+
+  const deleteContactMessage = (id) => {
+    setMessages((prev) => prev.filter((msg) => msg.id !== id));
+  };
 
   const toggleCategoryVisibility = (page, categoryName) => {
     setCategories((prev) => ({
@@ -304,7 +330,10 @@ export function AdminProvider({ children }) {
         updatePlayer,
         updateStaffMember,
         addStaffMember,
-        deleteStaffMember
+        deleteStaffMember,
+        messages,
+        addContactMessage,
+        deleteContactMessage
       }}
     >
       {children}

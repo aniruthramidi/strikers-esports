@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { AdminContext } from './AdminContext';
-import { Eye, EyeOff, Plus, Trash2, FolderPlus, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus, Info, Settings, X, Check } from 'lucide-react';
+import { Eye, EyeOff, Plus, Trash2, FolderPlus, ListFilter, ClipboardList, ShieldAlert, Lock, Compass, LogOut, LayoutGrid, Save, Users, Flame, Shield, UserPlus, Info, Settings, X, Check, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Admin() {
-  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers, updateAdminUsers, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember } = useContext(AdminContext);
+  const { categories, orders, navLinksState, homepageSettings, rostersState, staffState, adminUsers, updateAdminUsers, toggleCategoryVisibility, toggleNavLinkVisibility, addCustomCategory, deleteCategory, updateHomepageSettings, updatePlayer, updateStaffMember, addStaffMember, deleteStaffMember, messages, deleteContactMessage } = useContext(AdminContext);
   
   // Login State
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -487,6 +487,16 @@ export default function Admin() {
           }`}
         >
           <ClipboardList className="w-4 h-4" /> Shop Orders ({orders.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('messages')}
+          className={`flex items-center gap-2 px-4 py-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-all ${
+            activeTab === 'messages'
+              ? 'border-white text-white'
+              : 'border-transparent text-strikers-muted hover:text-white'
+          }`}
+        >
+          <Mail className="w-4 h-4" /> Messages ({messages?.length || 0})
         </button>
         <button
           onClick={() => setActiveTab('settings')}
@@ -1329,6 +1339,58 @@ export default function Admin() {
               <Save className="w-4 h-4" /> Save Settings
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Tab Content: Messages Inbox */}
+      {activeTab === 'messages' && (
+        <div className="border border-strikers-border bg-strikers-gray p-8 rounded-3xl space-y-6 animate-fadeIn">
+          <div className="flex justify-between items-center border-b border-strikers-border pb-4">
+            <div>
+              <h3 className="text-lg font-black uppercase text-white">Inquiries Inbox</h3>
+              <p className="text-xs text-strikers-muted">
+                Manage contact form submissions and user feedback sent via the Support Widget.
+              </p>
+            </div>
+            <span className="text-[10px] text-strikers-muted font-bold uppercase tracking-widest bg-black px-2.5 py-1 rounded-full">
+              {messages?.length || 0} messages
+            </span>
+          </div>
+
+          {(!messages || messages.length === 0) ? (
+            <div className="text-center py-12 text-xs text-strikers-muted uppercase font-bold tracking-wider">
+              No messages found. The inbox is clean!
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {messages.map((msg) => (
+                <div key={msg.id} className="p-5 bg-black/30 border border-neutral-900 rounded-2xl flex flex-col sm:flex-row justify-between items-start gap-4 hover:border-neutral-800 transition-colors">
+                  <div className="space-y-2 flex-grow">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 items-baseline">
+                      <span className="text-xs font-black uppercase text-white">{msg.name}</span>
+                      <span className="text-[10px] text-neutral-500 font-mono">{msg.email}</span>
+                      <span className="text-[9px] text-neutral-600 font-medium">
+                        {new Date(msg.timestamp).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-300 leading-relaxed font-medium whitespace-pre-wrap">
+                      {msg.text}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Delete message from ${msg.name}?`)) {
+                        deleteContactMessage(msg.id);
+                      }
+                    }}
+                    className="px-3.5 py-2 border border-red-950 hover:border-red-500 bg-red-950/20 hover:bg-red-900/30 text-red-400 text-[9px] uppercase font-bold tracking-wider rounded-xl transition-all self-end sm:self-start cursor-pointer shrink-0"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

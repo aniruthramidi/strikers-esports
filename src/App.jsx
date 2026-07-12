@@ -9,6 +9,7 @@ import Merch from './features/merch/Merch';
 import Admin from './features/admin/Admin';
 import About from './features/about/About';
 import Intro3D from './components/Intro3D';
+import SupportWidget from './components/SupportWidget';
 
 function App() {
   const [showIntro, setShowIntro] = useState(() => {
@@ -43,6 +44,9 @@ function App() {
 
             {/* Footer */}
             <Footer />
+
+            {/* Support Widget */}
+            <SupportWidget />
           </div>
         </Router>
       )}
