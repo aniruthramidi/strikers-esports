@@ -1,23 +1,4 @@
-The link you provided leads to the **Vercel dashboard** for your project, not the source code repository (e.g., GitHub). Because I cannot access your private dashboard or your code, I have created a comprehensive, professional template below.
 
-You can copy this into a `README.md` file in your project folder, but **make sure to fill in the bracketed placeholders `[ ]**` with the actual details of your project.
-
----
-
-# Strikers Esports
-
-[Add a brief description here: e.g., A comprehensive esports tournament management platform / A team website for Strikers Esports.]
-
-## 🚀 Overview
-
-**Strikers Esports** is a web application designed to [mention the core purpose: e.g., manage rosters, track match results, schedule tournaments, or engage with fans]. This project is built using [mention your tech stack, e.g., Next.js, React, Tailwind CSS, etc.].
-
-## 🛠 Features
-
-* **[Feature 1]:** (e.g., Real-time tournament brackets)
-* **[Feature 2]:** (e.g., Player profile management)
-* **[Feature 3]:** (e.g., News and updates feed)
-* **[Feature 4]:** (e.g., Responsive mobile-first design)
 
 ## 💻 Tech Stack
 
