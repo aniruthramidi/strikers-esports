@@ -257,11 +257,12 @@ export default function SupportWidget() {
       <AnimatePresence>
         {isMobile && isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            animate={{ opacity: 0.7, backdropFilter: 'blur(6px)' }}
+            exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            transition={{ duration: 0.25 }}
             onClick={closeAllModals}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-30 pointer-events-auto"
+            className="fixed inset-0 bg-black/80 z-30 pointer-events-auto"
             style={{ width: '100vw', height: '100vh', left: 0, top: 0 }}
           />
         )}
@@ -565,10 +566,16 @@ export default function SupportWidget() {
                 return (
                   <motion.button
                     key={i}
-                    initial={{ x: 0, y: 0, scale: 0, opacity: 0 }}
-                    animate={{ x, y, scale: 1, opacity: 1 }}
-                    exit={{ x: 0, y: 0, scale: 0, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 280, damping: 22, delay: i * 0.02 }}
+                    initial={{ x: 0, y: 0, scale: 0, opacity: 0, rotate: -180 }}
+                    animate={{ x, y, scale: 1, opacity: 1, rotate: 0 }}
+                    exit={{ x: 0, y: 0, scale: 0, opacity: 0, rotate: -180 }}
+                    transition={{ 
+                      type: 'spring', 
+                      stiffness: 320, 
+                      damping: 18, 
+                      delay: i * 0.015 
+                    }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => {
                       setIsMenuOpen(false);
                       if (item.isLink) {
